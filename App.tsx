@@ -1,20 +1,28 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { ThemeProvider } from "styled-components/native";
+import theme from "@theme/index";
+
+import {
+  Inter_400Regular,
+  Inter_700Bold,
+  useFonts,
+} from "@expo-google-fonts/inter";
+
+import { Routes } from "@routes/index";
+import { Spinner } from "@components/Spinner";
+import { StatusBar } from "expo-status-bar";
 
 export default function App() {
+  const [fontsLoaded] = useFonts({
+    Inter_400Regular,
+    Inter_700Bold,
+  });
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <>
+      <StatusBar backgroundColor="transparent" translucent style="light" />
+      <ThemeProvider theme={theme}>
+        {fontsLoaded ? <Routes /> : <Spinner />}
+      </ThemeProvider>
+    </>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
