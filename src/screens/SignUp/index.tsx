@@ -3,8 +3,9 @@ import { RootParamList } from "src/@types/navigation";
 
 import { useState } from "react";
 
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "@utils/firebase";
+import { User, createUserWithEmailAndPassword } from "firebase/auth";
+import { auth, db } from "@utils/firebase";
+import { getDoc, setDoc, doc, addDoc, collection } from "firebase/firestore";
 
 import { Container, Loading, Title } from "./styles";
 
@@ -13,13 +14,17 @@ import { Button } from "@components/Button";
 import { Alert } from "react-native";
 import { Spinner } from "@components/Spinner";
 
-type SignInScreenNavigationProp = NativeStackNavigationProp<
+type SignUpScreenNavigationProp = NativeStackNavigationProp<
   RootParamList,
   "signUp"
 >;
 
 interface SignUpScreenProps {
-  navigation: SignInScreenNavigationProp;
+  navigation: SignUpScreenNavigationProp;
+}
+
+interface UserProps {
+  user: User;
 }
 
 export function SignUp({ navigation }: SignUpScreenProps) {
@@ -34,23 +39,9 @@ export function SignUp({ navigation }: SignUpScreenProps) {
   }
 
   function handleCreateUser() {
-    setLoading(true);
-    if (password !== confirmPassword) {
-      Alert.alert("Error");
-    }
-
-    createUserWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
-        const user = userCredential.user;
-        console.log(user);
-        return user;
-      })
-      .catch((e) => {
-        console.log(e);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+    createUserWithEmailAndPassword(auth, email, password).then(() => {
+      console.log("User account created & signed in!");
+    });
 
     navigation.navigate("home");
   }

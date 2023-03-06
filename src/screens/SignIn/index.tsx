@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ScrollView } from "react-native";
+import { Alert, ScrollView } from "react-native";
 
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootParamList } from "src/@types/navigation";
@@ -10,7 +10,7 @@ import { Input } from "@components/Input";
 import { Button } from "@components/Button";
 
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "@utils/firebase";
+import { auth, db } from "@utils/firebase";
 
 type SignInScreenNavigationProp = NativeStackNavigationProp<
   RootParamList,
@@ -32,20 +32,22 @@ export function SignIn({ navigation }: SignInScreenProps) {
   }
 
   function handleLogin() {
-    try {
-      setLoading(true);
-      signInWithEmailAndPassword(auth, email, password).then(
-        (userCredential) => {
-          const user = userCredential.user;
-          navigation.navigate("home");
-          return user;
+    setLoading(true);
+    signInWithEmailAndPassword(auth, email, password)
+      .then(() => {
+        console.log("success");
+      })
+      .catch((error) => {
+        if (error.code === "auth/email-already-in-use") {
+          console.log("That email address is already in use!");
         }
-      );
-    } catch (e) {
-      console.log(e);
-    } finally {
-      setLoading(false);
-    }
+
+        if (error.code === "auth/invalid-email") {
+          console.log("That email address is invalid!");
+        }
+        console.log(error);
+      });
+    navigation.navigate("home");
   }
 
   return (
@@ -57,12 +59,14 @@ export function SignIn({ navigation }: SignInScreenProps) {
         <Title>Todo-list</Title>
         <Input
           value={email}
+          keyboardType="email-address"
           onChangeText={setEmail}
           placeholder="Email"
           placeholderTextColor="#fff"
         />
         <Input
           value={password}
+          secureTextEntry
           onChangeText={setPassword}
           placeholder="Password"
           placeholderTextColor="#fff"
